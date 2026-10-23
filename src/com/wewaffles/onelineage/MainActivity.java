@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
 
     private void setupFlavorSelection() {
         View.OnClickListener clickVanilla = v -> selectFlavor(Flavor.VANILLA);
-        View.OnClickListener clickGapps = v -> cardFlavorGapps.setVisibility(View.GONE);\n        selectFlavor(Flavor.VANILLA);
+        View.OnClickListener clickGapps = v -> selectFlavor(Flavor.GAPPS);
 
         cardFlavorVanilla.setOnClickListener(clickVanilla);
         cardFlavorGapps.setOnClickListener(clickGapps);
@@ -270,7 +270,7 @@ public class MainActivity extends Activity {
                     } else {
                         tvImageStatus.setText("Image: Not Installed (Missing system.raw)");
                         tvImageStatus.setTextColor(Color.parseColor("#FFB4AB"));
-                        btnDownloadLineage.setText("Download & Install");
+                        btnDownloadLineage.setText("Download EvoX");
                         btnBootLineage.setEnabled(false);
                         btnBootLineage.setAlpha(0.5f);
                     }
@@ -434,7 +434,7 @@ public class MainActivity extends Activity {
                 pbDownload.setIndeterminate(false);
                 pbDownload.setProgress(0);
                 tvDownloadProgress.setVisibility(View.VISIBLE);
-                tvDownloadProgress.setText("Connecting to official SourceForge release…");
+                tvDownloadProgress.setText("Connecting to EvoX release…");
                 btnDownloadLineage.setEnabled(false);
             });
 
