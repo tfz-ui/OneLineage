@@ -113,6 +113,13 @@ else
     echo "Skipping LineageOS-specific framework patches for EvoX"
 fi
 
+# EvoX keeps its own framework JAR and receives the selectively ported
+# Samsung light HAL path from an EvoX-based services.jar.
+if [ -f "$STAGE/evox_gsi" ] && [ -f "$STAGE/services_evox_patched.jar" ]; then
+    $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
+    $BB mount --bind "$STAGE/services_evox_patched.jar" "$ROOTFS/system/framework/services.jar"
+    echo "Bound services_evox_patched.jar -> $ROOTFS/system/framework/services.jar"
+fi
 
 echo "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
