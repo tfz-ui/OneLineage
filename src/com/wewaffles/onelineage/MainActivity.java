@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
     private static final String STAGE_DIR = "/data/local/tmp/lineage_stage";
     private static final String SYSTEM_RAW = STAGE_DIR + "/system.raw";
 
-    private static final String URL_VANILLA = "https://store6.gofile.io/download/web/d832fb77-74b6-4f06-a4a1-de37c3d2ee6f/system.7z";
+    private static final String URL_VANILLA = "https://github.com/orumanayurpanjayat-ux/placeholder/releases/download/placeholder/system.7z";
     private static final String URL_GAPPS = "https://github.com/Doze-off/EvoX_treble/releases/download/2026-06-26/EvoX-11.8-GSI_treble_arm64-ab-GAPPS-20260626.img.xz";
     private static final long ESTIMATED_VANILLA_BYTES = 1277836337L;
     private static final long ESTIMATED_GAPPS_BYTES = 1642441584L;
