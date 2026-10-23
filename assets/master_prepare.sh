@@ -113,8 +113,6 @@ else
     echo "Skipping LineageOS-specific framework patches for EvoX"
 fi
 
-fi
-
 
 echo "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
