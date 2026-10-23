@@ -76,7 +76,10 @@ if [ -d /system_ext/apex ]; then
     mount | grep -q "$ROOTFS/system_ext/apex " || $BB mount --bind /system_ext/apex "$ROOTFS/system_ext/apex"
 fi
 mount | grep -q "$ROOTFS/mnt " || $BB mount --rbind /mnt "$ROOTFS/mnt"
-# These overlays target a particular LineageOS release. Their framework and\n# PermissionController payloads must not be mounted over EvoX.\nif [ ! -f "$STAGE/evox_gsi" ]; then\nif [ -f "$STAGE/services_patched.jar" ]; then
+# These overlays target a particular LineageOS release. Their framework and
+# PermissionController payloads must not be mounted over EvoX.
+if [ ! -f "$STAGE/evox_gsi" ]; then
+if [ -f "$STAGE/services_patched.jar" ]; then
     $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
     $BB mount --bind "$STAGE/services_patched.jar" "$ROOTFS/system/framework/services.jar"
     echo "Bound services_patched.jar -> $ROOTFS/system/framework/services.jar"
@@ -114,7 +117,11 @@ fi
 
 
 
-else\n    echo "Skipping LineageOS-specific framework patches for EvoX"\nfi\n\necho "=== 5. Setting up Isolated Data & Bridges ==="
+else
+    echo "Skipping LineageOS-specific framework patches for EvoX"
+fi
+
+echo "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
 
 # Give the guest the host's authorised ADB keys. The container has no
@@ -132,7 +139,8 @@ if [ -f "$GSET" ]; then
     if grep -q 'id="adb_enabled"' "$GSET" 2>/dev/null; then
         sed -i 's/id="adb_enabled"\([^>]*\)value="[^"]*"/id="adb_enabled"\1value="1"/' "$GSET" 2>/dev/null
     else
-        sed -i 's#</settings>#    <setting id="adb_enabled" name="adb_enabled" value="1" package="android" />\n</settings>#' "$GSET" 2>/dev/null
+        sed -i 's#</settings>#    <setting id="adb_enabled" name="adb_enabled" value="1" package="android" />
+</settings>#' "$GSET" 2>/dev/null
     fi
     echo "Pre-seeded adb_enabled=1 in guest settings_global.xml"
 fi
@@ -669,10 +677,12 @@ if [ ! -f "$STAGE/evox_gsi" ] && [ -f "$STAGE/PermissionController_patched.apk" 
         $BB umount -l "$PERM_APK" 2>/dev/null || true
         $BB mount --bind "$STAGE/PermissionController_patched.apk" "$PERM_APK" 2>/dev/null && echo "Bound PermissionController_patched.apk (late) -> $PERM_APK"
     done
-else
+elif [ ! -f "$STAGE/evox_gsi" ]; then
     echo "!!! WARNING: PermissionController_patched.apk missing from $STAGE"
     echo "!!! Samsung's PermissionController will crash every runtime-permission dialog"
     echo "!!! (android.permission.RANGING not defined by platform)"
 fi
 
-fi\n\necho "=== ALL MOUNTS PREPARED SUCCESSFULLY ==="
+fi
+
+echo "=== ALL MOUNTS PREPARED SUCCESSFULLY ==="
