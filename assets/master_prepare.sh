@@ -76,8 +76,8 @@ if [ -d /system_ext/apex ]; then
     mount | grep -q "$ROOTFS/system_ext/apex " || $BB mount --bind /system_ext/apex "$ROOTFS/system_ext/apex"
 fi
 mount | grep -q "$ROOTFS/mnt " || $BB mount --rbind /mnt "$ROOTFS/mnt"
-# These overlays target a particular LineageOS release. Their framework and
-# PermissionController payloads must not be mounted over EvoX.
+# These framework and resource overlays target a particular LineageOS release.
+# Keep EvoX's own framework intact.
 if [ ! -f "$STAGE/evox_gsi" ]; then
 if [ -f "$STAGE/services_patched.jar" ]; then
     $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
@@ -105,6 +105,16 @@ if [ -f "$STAGE/framework-res_patched.apk" ]; then
     echo "Bound framework-res_patched.apk -> $ROOTFS/system/framework/framework-res.apk"
 fi
 
+
+
+
+
+else
+    echo "Skipping LineageOS-specific framework patches for EvoX"
+fi
+
+# Samsung PermissionController references android.permission.RANGING, which
+# this EvoX platform does not define. The patched APK removes that mapping.
 if [ -f "$STAGE/PermissionController_patched.apk" ]; then
     chmod 644 "$STAGE/PermissionController_patched.apk"
     PERM_APK=$(find "$ROOTFS/apex/com.android.permission" -name "PermissionController.apk" 2>/dev/null | head -n 1)
@@ -113,12 +123,6 @@ if [ -f "$STAGE/PermissionController_patched.apk" ]; then
         $BB mount --bind "$STAGE/PermissionController_patched.apk" "$PERM_APK"
         echo "Bound PermissionController_patched.apk -> $PERM_APK"
     fi
-fi
-
-
-
-else
-    echo "Skipping LineageOS-specific framework patches for EvoX"
 fi
 
 echo "=== 5. Setting up Isolated Data & Bridges ==="
@@ -664,20 +668,20 @@ done
 
 # PermissionController patch, second pass. The same block near step 4 runs
 # before the apex set is mounted, so find(1) finds nothing and Samsung's
-# PermissionController stays behind. Samsung's build requires
-# android.permission.RANGING, which the GSI platform does not define, so every
+# PermissionController stays behind. Samsung's controller requires
+# android.permission.RANGING, which this GSI platform does not define, so every
 # runtime-permission dialog dies with
 #   IllegalStateException: android.permission.RANGING not defined by platform
 #   -> "Permission controller keeps stopping"
 # and Gallery/Phone/Calendar can never be granted anything. Bind it now that
 # /apex/com.android.permission actually exists.
-if [ ! -f "$STAGE/evox_gsi" ] && [ -f "$STAGE/PermissionController_patched.apk" ]; then
+if [ -f "$STAGE/PermissionController_patched.apk" ]; then
     chmod 644 "$STAGE/PermissionController_patched.apk" 2>/dev/null || true
     for PERM_APK in $(find "$ROOTFS/apex/com.android.permission" -name "PermissionController.apk" 2>/dev/null); do
         $BB umount -l "$PERM_APK" 2>/dev/null || true
         $BB mount --bind "$STAGE/PermissionController_patched.apk" "$PERM_APK" 2>/dev/null && echo "Bound PermissionController_patched.apk (late) -> $PERM_APK"
     done
-elif [ ! -f "$STAGE/evox_gsi" ]; then
+else
     echo "!!! WARNING: PermissionController_patched.apk missing from $STAGE"
     echo "!!! Samsung's PermissionController will crash every runtime-permission dialog"
     echo "!!! (android.permission.RANGING not defined by platform)"
