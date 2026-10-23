@@ -26,14 +26,14 @@ If something isn't working and you have a fix feel free to make a pr!
 
 ## EvoX compatibility
 
-The app offers the EvoX 11.8 vanilla and GApps arm64 A/B images from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26), extracts the compressed system image, and stages it as `system.raw`. The inspected vanilla image reports Android 16 / SDK 36 and build ID `BP4A.251205.006`. Its own framework contains `android.permission.RANGING`, and its bundled PermissionController references that permission. The existing patched PermissionController removes that reference, so EvoX keeps its native framework and PermissionController together; all Lineage/Samsung framework overlay binaries are skipped. Other device-level EvoX compatibility remains unverified until boot testing.
+The app offers the EvoX 11.8 vanilla and GApps arm64 A/B images from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26), extracts the compressed system image, and stages it as `system.raw`. The inspected vanilla image reports Android 16 / SDK 36 and build ID `BP4A.251205.006`. Samsung's PermissionController references `android.permission.RANGING`, which this EvoX platform does not define. The bundled patched PermissionController removes that mapping, so it is applied to EvoX too. The Lineage-specific framework JAR, resource, and native library overlays remain disabled for EvoX so its own framework stays intact. Other device-level EvoX compatibility remains unverified until boot testing.
 
 ## Patches
 
 ### Patched system files (LineageOS profile only; EvoX keeps its own matching framework files)
 - `services_patched.jar` over `system/framework/services.jar`
 - `framework_patched.jar` over `system/framework/framework.jar`
-- `PermissionController_patched.apk`: removes the `android.permission.RANGING` reference so runtime-permission dialogs stop crashing (Samsung's PermissionController needs a permission the LineageOS 23.2 platform doesn't define)
+- `PermissionController_patched.apk`: removes Samsung PermissionController's `android.permission.RANGING` mapping, which the EvoX platform does not define; this patch is applied to EvoX as well
 - Optional bind-mounts when present: `framework-res_patched.apk`, `libaudio_aidl_conversion_common_cpp_patched.so`, `libaudioclient_aidl_conversion_patched.so`
 
 ### Boot and environment fixes
