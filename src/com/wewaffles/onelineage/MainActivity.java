@@ -63,9 +63,9 @@ public class MainActivity extends Activity {
     private static final String SYSTEM_RAW = STAGE_DIR + "/system.raw";
 
     private static final String URL_VANILLA = "https://github.com/Doze-off/EvoX_treble/releases/download/2026-06-26/EvoX-11.8-GSI_treble_arm64-ab-VANILLA-20260626.img.xz";
-    private static final String URL_GAPPS = URL_VANILLA; // EvoX image supplied here is the vanilla build.
-    private static final long ESTIMATED_VANILLA_BYTES = 1500000000L;
-    private static final long ESTIMATED_GAPPS_BYTES = ESTIMATED_VANILLA_BYTES;
+    private static final String URL_GAPPS = "https://github.com/Doze-off/EvoX_treble/releases/download/2026-06-26/EvoX-11.8-GSI_treble_arm64-ab-GAPPS-20260626.img.xz";
+    private static final long ESTIMATED_VANILLA_BYTES = 1215553456L;
+    private static final long ESTIMATED_GAPPS_BYTES = 1642441584L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,14 +224,14 @@ public class MainActivity extends Activity {
 
             // Check active userspace
             try {
-                Process pOs = Runtime.getRuntime().exec(new String[]{suBinary, "-c", "getprop ro.evolution.version"});
+                Process pOs = Runtime.getRuntime().exec(new String[]{suBinary, "-c", "getprop ro.evolution.device"});
                 BufferedReader osReader = new BufferedReader(new InputStreamReader(pOs.getInputStream()));
                 String osVer = osReader.readLine();
                 pOs.waitFor();
 
                 mainHandler.post(() -> {
                     if (osVer != null && !osVer.trim().isEmpty()) {
-                        tvOsStatus.setText("Current Userspace: EvoX " + osVer.trim());
+                        tvOsStatus.setText("Current Userspace: EvoX GSI");
                         tvOsStatus.setTextColor(Color.parseColor("#78D9EC"));
                         if (tvHeaderSubtitle != null) {
                             tvHeaderSubtitle.setText("Dual Userspace Switcher • EvoX");
