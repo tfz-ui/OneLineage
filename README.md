@@ -59,7 +59,9 @@ The app offers the EvoX 11.8 vanilla and GApps arm64 A/B images from [Doze-off/E
 - Never kill the host `netd` while Lineage is running.
 
 ## Building
-Edit the paths at the top of `build_apk.sh` (JDK 17, Android SDK build-tools 34, android-34 platform), provide your own signing keystore, then run `./build_apk.sh`.
+The `Build APK` GitHub Actions workflow builds and debug-signs the app on pushes, pull requests, or when started manually. Download `OneLineage-<commit>` from the run's artifacts to install it for testing. The generated debug keystore is only for test builds; it will not match a separately signed release build.
+
+To build locally, install JDK 17 and Android SDK platform 34 / build-tools 34.0.0, set `ANDROID_SDK_ROOT` (or `ANDROID_HOME`), then run `bash ./build_apk.sh`. The APK is written to `build/OneLineage.apk` by default. Set `OUT_APK` or `KEYSTORE` to override the output path or signing keystore.
 
 ## Credits
 EvoX GSI by Doze-off. EvoX and Android are trademarks of their respective owners. Not affiliated with Samsung or Google.

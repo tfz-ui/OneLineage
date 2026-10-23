@@ -1,14 +1,30 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
-export PATH="$JAVA_HOME/bin:$PATH"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="${BUILD_DIR:-$PROJECT_DIR/build}"
+ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+BUILD_TOOLS_VERSION="${ANDROID_BUILD_TOOLS_VERSION:-34.0.0}"
+PLATFORM_VERSION="${ANDROID_PLATFORM_VERSION:-android-34}"
+OUT_APK="${OUT_APK:-$BUILD_DIR/OneLineage.apk}"
 
-BUILD_DIR="/Users/waffles/.gemini/antigravity/scratch/LineageSwitcher/build"
-SDK_TOOLS="/Users/waffles/Library/Android/sdk/build-tools/34.0.0"
-PLATFORM_JAR="/Users/waffles/Library/Android/sdk/platforms/android-34/android.jar"
-PROJECT_DIR="/Users/waffles/.gemini/antigravity/scratch/LineageSwitcher"
-OUT_APK="/Users/waffles/Downloads/OneLineage.apk"
+if [ -z "$ANDROID_SDK_ROOT" ]; then
+    echo "Set ANDROID_SDK_ROOT (or ANDROID_HOME) to an installed Android SDK." >&2
+    exit 1
+fi
+
+SDK_TOOLS="$ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS_VERSION"
+PLATFORM_JAR="$ANDROID_SDK_ROOT/platforms/$PLATFORM_VERSION/android.jar"
+for tool in aapt2 d8 zipalign apksigner; do
+    if [ ! -x "$SDK_TOOLS/$tool" ]; then
+        echo "Missing Android build tool: $SDK_TOOLS/$tool" >&2
+        exit 1
+    fi
+done
+if [ ! -f "$PLATFORM_JAR" ]; then
+    echo "Missing Android platform: $PLATFORM_JAR" >&2
+    exit 1
+fi
 
 echo "=== 1. Cleaning & preparing build directories ==="
 rm -rf "$BUILD_DIR"
@@ -49,9 +65,9 @@ cd "$PROJECT_DIR"
 echo "=== 7. Aligning APK with zipalign ==="
 "$SDK_TOOLS/zipalign" -v -p 4 "$BUILD_DIR/base.apk" "$BUILD_DIR/aligned.apk"
 
-KEYSTORE="$PROJECT_DIR/keystore/debug.keystore"
+KEYSTORE="${KEYSTORE:-$PROJECT_DIR/keystore/debug.keystore}"
 if [ ! -f "$KEYSTORE" ]; then
-    mkdir -p "$PROJECT_DIR/keystore"
+    mkdir -p "$(dirname "$KEYSTORE")"
     keytool -genkey -v \
         -keystore "$KEYSTORE" \
         -storepass android \
@@ -73,4 +89,4 @@ fi
 
 echo "=== BUILD SUCCESSFUL ==="
 echo "Output APK: $OUT_APK"
-ls -la "$OUT_APK"
+ls -lh "$OUT_APK"
