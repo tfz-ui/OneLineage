@@ -8,10 +8,10 @@
     <string name="status_root_granted">KernelSU Root Active</string>
     <string name="status_root_denied">Root Access Required</string>
     
-    <string name="btn_boot_lineage">Switch to LineageOS</string>
+    <string name="btn_boot_lineage">Switch to EvoX</string>
     <string name="btn_return_oneui">Return to One UI</string>
     <string name="btn_download_lineage">Download &amp; Install</string>
-    <string name="btn_delete_lineage">Delete LineageOS Files</string>
+    <string name="btn_delete_lineage">Delete EvoX Files</string>
     <string name="btn_backup_launcher">Backup Layout</string>
     <string name="btn_restore_launcher">Restore Layout</string>
 </resources>

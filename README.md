@@ -1,6 +1,6 @@
 # OneLineage
 
-Hot-switch between stock **One UI** and a **LineageOS 23.2 (Android 16) GSI** on a rooted Samsung phone, with no reflashing and no second partition. OneLineage stages the GSI under `/data/local/tmp`, pivots into it as a container with its own zygote and system_server, and can hand the screen back to One UI.
+Hot-switch between stock **One UI** and a **EvoX 11.8 (Android 16) GSI** on a rooted Samsung phone, with no reflashing and no second partition. OneLineage stages the GSI under `/data/local/tmp`, pivots into it as a container with its own zygote and system_server, and can hand the screen back to One UI.
 
 If something isn't working and you have a fix feel free to make a pr!
 
@@ -12,24 +12,28 @@ If something isn't working and you have a fix feel free to make a pr!
 ## Requirements
 - A rooted Samsung phone (the tested one is an S26 Ultra on One UI 8.5)
 - Enough free space on `/data` for the extracted GSI
-- Internet access for the GSI download (LineageOS 23.2 GSI, EXT4, VANILLA or GAPPS builds from SourceForge)
+- Internet access for the GSI download (EvoX 11.8 vanilla arm64 A/B GSI image)
 
 ## What's in here
 | Path | What it is |
 | --- | --- |
 | `src/`, `res/`, `AndroidManifest.xml` | The Android app (`com.wewaffles.onelineage`) |
-| `assets/master_prepare.sh` | Stages the rootfs, binds the patched files, fixes labels/ownership |
+| `assets/master_prepare.sh` | Stages the rootfs, applies Lineage-specific compatibility overlays only to the matching image, fixes labels/ownership |
 | `assets/master_inner.sh` | Runs inside the container, starts the guest zygote |
 | `assets/switch_to_lineage.sh` / `return_to_oneui.sh` | Switch in and back out |
 | `assets/zygote_exec` | Static aarch64 launcher for the guest zygote |
 | `build_apk.sh` | Builds and signs the APK |
 
+## EvoX compatibility
+
+The app offers the EvoX 11.8 vanilla and GApps arm64 A/B images. Vanilla uses a `system.7z` archive from [the configured GitHub release](https://github.com/orumanayurpanjayat-ux/placeholder/releases/download/placeholder/system.7z); GApps still downloads the `.img.xz` release from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26). The app extracts the image and stages it as `system.raw`. The inspected vanilla image reports Android 16 / SDK 36 and build ID `BP4A.251205.006`. Samsung's PermissionController references `android.permission.RANGING`, which this EvoX platform does not define. The bundled patched PermissionController removes that mapping, so it is applied to EvoX too. EvoX's own `services.jar` already contains Samsung proximity fallback and brightness scaling; those behaviors remain intact. The EvoX-specific `services_evox_patched.jar` is based on EvoX's JAR and adds the Samsung lights AIDL path with the original patch's sysfs max-brightness detection. Original Lineage assets remain separate. The EvoX service also selectively ports Samsung fingerprint/sysinput HAL discovery, under-display fingerprint mask-brightness observation, and UDFPS metadata helpers while leaving EvoX sensor registration intact. This service change has been rebuilt and checked for DEX 039 layout and duplicate class definitions; device boot and availability of the host Samsung vendor HAL services remain unverified. The Samsung RAW-image framework changes in the donor (`ImageDecoder.isMimeTypeSupported`, `ExifInterface.isSupportedMimeType`, and the `MediaFile` registration) are already bytecode-identical in EvoX 11.8, so EvoX keeps its own framework JAR without a redundant overlay.
+
 ## Patches
 
-### Patched system files (bind-mounted over the GSI)
+### Patched system files (LineageOS profile only; EvoX keeps its own matching framework files)
 - `services_patched.jar` over `system/framework/services.jar`
 - `framework_patched.jar` over `system/framework/framework.jar`
-- `PermissionController_patched.apk`: removes the `android.permission.RANGING` reference so runtime-permission dialogs stop crashing (Samsung's PermissionController needs a permission the LineageOS 23.2 platform doesn't define)
+- `PermissionController_patched.apk`: removes Samsung PermissionController's `android.permission.RANGING` mapping, which the EvoX platform does not define; this patch is applied to EvoX as well
 - Optional bind-mounts when present: `framework-res_patched.apk`, `libaudio_aidl_conversion_common_cpp_patched.so`, `libaudioclient_aidl_conversion_patched.so`
 
 ### Boot and environment fixes
@@ -55,7 +59,9 @@ If something isn't working and you have a fix feel free to make a pr!
 - Never kill the host `netd` while Lineage is running.
 
 ## Building
-Edit the paths at the top of `build_apk.sh` (JDK 17, Android SDK build-tools 34, android-34 platform), provide your own signing keystore, then run `./build_apk.sh`.
+The `Build APK` GitHub Actions workflow builds and debug-signs the app on pushes, pull requests, or when started manually. Download `OneLineage-<commit>` from the run's artifacts to install it for testing. The generated debug keystore is only for test builds; it will not match a separately signed release build.
+
+To build locally, install JDK 17 and Android SDK platform 34 / build-tools 34.0.0, set `ANDROID_SDK_ROOT` (or `ANDROID_HOME`), then run `bash ./build_apk.sh`. The APK is written to `build/OneLineage.apk` by default. Set `OUT_APK` or `KEYSTORE` to override the output path or signing keystore.
 
 ## Credits
-LineageOS GSI builds by MisterZtr (SourceForge). LineageOS and Android are trademarks of their respective owners. Not affiliated with Samsung, Google or LineageOS.
+EvoX GSI by Doze-off. EvoX and Android are trademarks of their respective owners. Not affiliated with Samsung or Google.

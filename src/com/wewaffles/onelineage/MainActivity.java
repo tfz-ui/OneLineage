@@ -62,10 +62,10 @@ public class MainActivity extends Activity {
     private static final String STAGE_DIR = "/data/local/tmp/lineage_stage";
     private static final String SYSTEM_RAW = STAGE_DIR + "/system.raw";
 
-    private static final String URL_VANILLA = "https://downloads.sourceforge.net/project/misterztr-gsi/LineageOS/Android%2016/LineageOS-23.2-20260524-VANILLA-EXT4-GSI.7z?use_mirror=autoselect";
-    private static final String URL_GAPPS = "https://downloads.sourceforge.net/project/misterztr-gsi/LineageOS/Android%2016/LineageOS-23.2-20260524-GAPPS-EXT4-GSI.7z?use_mirror=autoselect";
-    private static final long ESTIMATED_VANILLA_BYTES = 922022276L;
-    private static final long ESTIMATED_GAPPS_BYTES = 1167859370L;
+    private static final String URL_VANILLA = "https://github.com/orumanayurpanjayat-ux/placeholder/releases/download/placeholder/system.7z";
+    private static final String URL_GAPPS = "https://github.com/Doze-off/EvoX_treble/releases/download/2026-06-26/EvoX-11.8-GSI_treble_arm64-ab-GAPPS-20260626.img.xz";
+    private static final long ESTIMATED_VANILLA_BYTES = 1277836337L;
+    private static final long ESTIMATED_GAPPS_BYTES = 1642441584L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         cardFlavorVanilla.setOnClickListener(clickVanilla);
         cardFlavorGapps.setOnClickListener(clickGapps);
 
-        selectFlavor(Flavor.GAPPS);
+        selectFlavor(Flavor.VANILLA);
     }
 
     private void selectFlavor(Flavor flavor) {
@@ -132,10 +132,10 @@ public class MainActivity extends Activity {
 
         switch (flavor) {
             case VANILLA:
-                tvDownloadDesc.setText("Vanilla: The lightweight option");
+                tvDownloadDesc.setText("EvoX 11.8 GSI • Android 16 • Vanilla");
                 break;
             case GAPPS:
-                tvDownloadDesc.setText("MindTheGapps: LineageOS 23.2 + Google Play Store & Services.");
+                tvDownloadDesc.setText("EvoX 11.8 GSI • Android 16 • Google Apps included");
                 break;
         }
     }
@@ -224,17 +224,17 @@ public class MainActivity extends Activity {
 
             // Check active userspace
             try {
-                Process pOs = Runtime.getRuntime().exec(new String[]{suBinary, "-c", "getprop ro.lineage.version"});
+                Process pOs = Runtime.getRuntime().exec(new String[]{suBinary, "-c", "getprop ro.evolution.device"});
                 BufferedReader osReader = new BufferedReader(new InputStreamReader(pOs.getInputStream()));
                 String osVer = osReader.readLine();
                 pOs.waitFor();
 
                 mainHandler.post(() -> {
                     if (osVer != null && !osVer.trim().isEmpty()) {
-                        tvOsStatus.setText("Current Userspace: LineageOS " + osVer.trim());
+                        tvOsStatus.setText("Current Userspace: EvoX GSI");
                         tvOsStatus.setTextColor(Color.parseColor("#78D9EC"));
                         if (tvHeaderSubtitle != null) {
-                            tvHeaderSubtitle.setText("Dual Userspace Switcher • LineageOS");
+                            tvHeaderSubtitle.setText("Dual Userspace Switcher • EvoX");
                         }
                     } else {
                         tvOsStatus.setText("Current Userspace: Samsung One UI (Stock)");
@@ -264,13 +264,13 @@ public class MainActivity extends Activity {
                     if (out != null && !out.contains("MISSING") && !out.trim().isEmpty()) {
                         tvImageStatus.setText("Image: Installed & Ready (" + out.trim().replaceAll("\\s+", " ") + ")");
                         tvImageStatus.setTextColor(Color.parseColor("#A5D6A7"));
-                        btnDownloadLineage.setText("Reinstall Image");
+                        btnDownloadLineage.setText("Reinstall EvoX");
                         btnBootLineage.setEnabled(true);
                         btnBootLineage.setAlpha(1.0f);
                     } else {
                         tvImageStatus.setText("Image: Not Installed (Missing system.raw)");
                         tvImageStatus.setTextColor(Color.parseColor("#FFB4AB"));
-                        btnDownloadLineage.setText("Download & Install");
+                        btnDownloadLineage.setText("Download EvoX");
                         btnBootLineage.setEnabled(false);
                         btnBootLineage.setAlpha(0.5f);
                     }
@@ -288,6 +288,7 @@ public class MainActivity extends Activity {
                 "master_prepare.sh", "master_inner.sh",
                 "zygote_exec", "clean_apex_info_list.xml",
                 "services_patched.jar", "framework_patched.jar",
+                "services_evox_patched.jar",
                 "7zz", "PermissionController_patched.apk"
             };
             File filesDir = getFilesDir();
@@ -329,7 +330,7 @@ public class MainActivity extends Activity {
 
     private void downloadLineage() {
         if (!isRootGranted) {
-            appendLog("ERROR: Root privilege required to set up LineageOS!");
+            appendLog("ERROR: Root privilege required to set up EvoX!");
             return;
         }
         startNetworkDownload(selectedFlavor);
@@ -434,13 +435,13 @@ public class MainActivity extends Activity {
                 pbDownload.setIndeterminate(false);
                 pbDownload.setProgress(0);
                 tvDownloadProgress.setVisibility(View.VISIBLE);
-                tvDownloadProgress.setText("Connecting to official SourceForge release…");
+                tvDownloadProgress.setText("Connecting to EvoX release…");
                 btnDownloadLineage.setEnabled(false);
             });
 
             appendLog("\n[SETUP] Initializing stage directory: " + STAGE_DIR);
             try {
-                runRootCmdDrained("mkdir -p " + STAGE_DIR + " && chmod 777 " + STAGE_DIR);
+                runRootCmdDrained("mkdir -p " + STAGE_DIR + " && chmod 777 " + STAGE_DIR + " && touch " + STAGE_DIR + "/evox_gsi");
                 appendLog("[SETUP] Wiping existing userdata for a fresh OOBE...");
                 runRootCmdDrained(wipeUserDataCmd());
 
@@ -482,7 +483,7 @@ public class MainActivity extends Activity {
 
                 mainHandler.post(() -> {
                     pbDownload.setVisibility(View.GONE);
-                    tvDownloadProgress.setText("LineageOS 23.2 (" + flavor.name() + ") installed successfully!");
+                    tvDownloadProgress.setText("EvoX 11.8 installed successfully!");
                     btnDownloadLineage.setEnabled(true);
                 });
                 setLogStatus("Ready");

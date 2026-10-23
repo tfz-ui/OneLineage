@@ -76,6 +76,9 @@ if [ -d /system_ext/apex ]; then
     mount | grep -q "$ROOTFS/system_ext/apex " || $BB mount --bind /system_ext/apex "$ROOTFS/system_ext/apex"
 fi
 mount | grep -q "$ROOTFS/mnt " || $BB mount --rbind /mnt "$ROOTFS/mnt"
+# These framework and resource overlays target a particular LineageOS release.
+# Keep EvoX's own framework intact.
+if [ ! -f "$STAGE/evox_gsi" ]; then
 if [ -f "$STAGE/services_patched.jar" ]; then
     $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
     $BB mount --bind "$STAGE/services_patched.jar" "$ROOTFS/system/framework/services.jar"
@@ -102,17 +105,21 @@ if [ -f "$STAGE/framework-res_patched.apk" ]; then
     echo "Bound framework-res_patched.apk -> $ROOTFS/system/framework/framework-res.apk"
 fi
 
-if [ -f "$STAGE/PermissionController_patched.apk" ]; then
-    chmod 644 "$STAGE/PermissionController_patched.apk"
-    PERM_APK=$(find "$ROOTFS/apex/com.android.permission" -name "PermissionController.apk" 2>/dev/null | head -n 1)
-    if [ -n "$PERM_APK" ]; then
-        $BB umount -l "$PERM_APK" 2>/dev/null || true
-        $BB mount --bind "$STAGE/PermissionController_patched.apk" "$PERM_APK"
-        echo "Bound PermissionController_patched.apk -> $PERM_APK"
-    fi
+
+
+
+
+else
+    echo "Skipping LineageOS-specific framework patches for EvoX"
 fi
 
-
+# EvoX keeps its own framework JAR and receives the selectively ported
+# Samsung light HAL path from an EvoX-based services.jar.
+if [ -f "$STAGE/evox_gsi" ] && [ -f "$STAGE/services_evox_patched.jar" ]; then
+    $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
+    $BB mount --bind "$STAGE/services_evox_patched.jar" "$ROOTFS/system/framework/services.jar"
+    echo "Bound services_evox_patched.jar -> $ROOTFS/system/framework/services.jar"
+fi
 
 echo "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
@@ -132,7 +139,8 @@ if [ -f "$GSET" ]; then
     if grep -q 'id="adb_enabled"' "$GSET" 2>/dev/null; then
         sed -i 's/id="adb_enabled"\([^>]*\)value="[^"]*"/id="adb_enabled"\1value="1"/' "$GSET" 2>/dev/null
     else
-        sed -i 's#</settings>#    <setting id="adb_enabled" name="adb_enabled" value="1" package="android" />\n</settings>#' "$GSET" 2>/dev/null
+        sed -i 's#</settings>#    <setting id="adb_enabled" name="adb_enabled" value="1" package="android" />
+</settings>#' "$GSET" 2>/dev/null
     fi
     echo "Pre-seeded adb_enabled=1 in guest settings_global.xml"
 fi
@@ -656,8 +664,8 @@ done
 
 # PermissionController patch, second pass. The same block near step 4 runs
 # before the apex set is mounted, so find(1) finds nothing and Samsung's
-# PermissionController stays behind. Samsung's build requires
-# android.permission.RANGING, which the GSI platform does not define, so every
+# PermissionController stays behind. Samsung's controller requires
+# android.permission.RANGING, which this GSI platform does not define, so every
 # runtime-permission dialog dies with
 #   IllegalStateException: android.permission.RANGING not defined by platform
 #   -> "Permission controller keeps stopping"

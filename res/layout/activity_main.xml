@@ -139,7 +139,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LineageOS 23.2 Image"
+                android:text="EvoX 11.8 GSI"
                 android:textColor="@color/m3_primary"
                 android:textSize="13sp"
                 android:fontFamily="sans-serif-medium" />
@@ -189,7 +189,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Vanilla (Clean LineageOS)"
+                            android:text="EvoX 11.8 Vanilla"
                             android:textColor="@color/m3_text_primary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
@@ -199,7 +199,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="The lightweight option"
+                            android:text="Android 16 • arm64 • A/B"
                             android:textColor="@color/m3_text_secondary"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -242,7 +242,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="MindTheGapps Edition"
+                            android:text="EvoX 11.8 with Google Apps"
                             android:textColor="@color/m3_text_primary"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
@@ -252,7 +252,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Official Google Play Store &amp; Play Services"
+                            android:text="GApps included in this release"
                             android:textColor="@color/m3_text_secondary"
                             android:textSize="12sp" />
                     </LinearLayout>
