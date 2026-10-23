@@ -18,7 +18,7 @@ If something isn't working and you have a fix feel free to make a pr!
 | Path | What it is |
 | --- | --- |
 | `src/`, `res/`, `AndroidManifest.xml` | The Android app (`com.wewaffles.onelineage`) |
-| `assets/master_prepare.sh` | Stages the rootfs, binds the patched files, fixes labels/ownership |
+| `assets/master_prepare.sh` | Stages the rootfs, applies Lineage-specific compatibility overlays only to the matching image, fixes labels/ownership |
 | `assets/master_inner.sh` | Runs inside the container, starts the guest zygote |
 | `assets/switch_to_lineage.sh` / `return_to_oneui.sh` | Switch in and back out |
 | `assets/zygote_exec` | Static aarch64 launcher for the guest zygote |
@@ -26,11 +26,11 @@ If something isn't working and you have a fix feel free to make a pr!
 
 ## EvoX compatibility
 
-The app downloads the EvoX 11.8 vanilla arm64 A/B image from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26), extracts its compressed system image, and stages it as `system.raw`. The bundled framework JAR and PermissionController patches target a specific LineageOS GSI and are deliberately skipped for EvoX. No EvoX-specific patch payload was included with this change, so this adds image staging support but does not claim that the existing LineageOS patches make EvoX boot. Device testing and EvoX-specific compatibility patches are still needed.
+The app offers the EvoX 11.8 vanilla and GApps arm64 A/B images from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26), extracts the compressed system image, and stages it as `system.raw`. The inspected vanilla image reports Android 16 / SDK 36 and build ID `BP4A.251205.006`. Its own framework contains `android.permission.RANGING`, and its bundled PermissionController references that permission. The existing patched PermissionController removes that reference, so EvoX keeps its native framework and PermissionController together; all Lineage/Samsung framework overlay binaries are skipped. Other device-level EvoX compatibility remains unverified until boot testing.
 
 ## Patches
 
-### Patched system files (bind-mounted over the GSI)
+### Patched system files (LineageOS profile only; EvoX keeps its own matching framework files)
 - `services_patched.jar` over `system/framework/services.jar`
 - `framework_patched.jar` over `system/framework/framework.jar`
 - `PermissionController_patched.apk`: removes the `android.permission.RANGING` reference so runtime-permission dialogs stop crashing (Samsung's PermissionController needs a permission the LineageOS 23.2 platform doesn't define)
