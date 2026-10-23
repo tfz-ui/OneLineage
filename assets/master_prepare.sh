@@ -113,17 +113,8 @@ else
     echo "Skipping LineageOS-specific framework patches for EvoX"
 fi
 
-# Samsung PermissionController references android.permission.RANGING, which
-# this EvoX platform does not define. The patched APK removes that mapping.
-if [ -f "$STAGE/PermissionController_patched.apk" ]; then
-    chmod 644 "$STAGE/PermissionController_patched.apk"
-    PERM_APK=$(find "$ROOTFS/apex/com.android.permission" -name "PermissionController.apk" 2>/dev/null | head -n 1)
-    if [ -n "$PERM_APK" ]; then
-        $BB umount -l "$PERM_APK" 2>/dev/null || true
-        $BB mount --bind "$STAGE/PermissionController_patched.apk" "$PERM_APK"
-        echo "Bound PermissionController_patched.apk -> $PERM_APK"
-    fi
 fi
+
 
 echo "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
@@ -685,8 +676,6 @@ else
     echo "!!! WARNING: PermissionController_patched.apk missing from $STAGE"
     echo "!!! Samsung's PermissionController will crash every runtime-permission dialog"
     echo "!!! (android.permission.RANGING not defined by platform)"
-fi
-
 fi
 
 echo "=== ALL MOUNTS PREPARED SUCCESSFULLY ==="
