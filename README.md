@@ -24,6 +24,10 @@ If something isn't working and you have a fix feel free to make a pr!
 | `assets/zygote_exec` | Static aarch64 launcher for the guest zygote |
 | `build_apk.sh` | Builds and signs the APK |
 
+## EvoX compatibility
+
+The app downloads the EvoX 11.8 vanilla arm64 A/B image from [Doze-off/EvoX_treble](https://github.com/Doze-off/EvoX_treble/releases/tag/2026-06-26), extracts its compressed system image, and stages it as `system.raw`. The bundled framework JAR and PermissionController patches target a specific LineageOS GSI and are deliberately skipped for EvoX. No EvoX-specific patch payload was included with this change, so this adds image staging support but does not claim that the existing LineageOS patches make EvoX boot. Device testing and EvoX-specific compatibility patches are still needed.
+
 ## Patches
 
 ### Patched system files (bind-mounted over the GSI)
