@@ -1,6 +1,6 @@
 # OneLineage
 
-Hot-switch between stock **One UI** and a **LineageOS 23.2 (Android 16) GSI** on a rooted Samsung phone, with no reflashing and no second partition. OneLineage stages the GSI under `/data/local/tmp`, pivots into it as a container with its own zygote and system_server, and can hand the screen back to One UI.
+Hot-switch between stock **One UI** and a **EvoX 11.8 (Android 16) GSI** on a rooted Samsung phone, with no reflashing and no second partition. OneLineage stages the GSI under `/data/local/tmp`, pivots into it as a container with its own zygote and system_server, and can hand the screen back to One UI.
 
 If something isn't working and you have a fix feel free to make a pr!
 
@@ -12,7 +12,7 @@ If something isn't working and you have a fix feel free to make a pr!
 ## Requirements
 - A rooted Samsung phone (the tested one is an S26 Ultra on One UI 8.5)
 - Enough free space on `/data` for the extracted GSI
-- Internet access for the GSI download (LineageOS 23.2 GSI, EXT4, VANILLA or GAPPS builds from SourceForge)
+- Internet access for the GSI download (EvoX 11.8 vanilla arm64 A/B GSI image)
 
 ## What's in here
 | Path | What it is |
@@ -58,4 +58,4 @@ If something isn't working and you have a fix feel free to make a pr!
 Edit the paths at the top of `build_apk.sh` (JDK 17, Android SDK build-tools 34, android-34 platform), provide your own signing keystore, then run `./build_apk.sh`.
 
 ## Credits
-LineageOS GSI builds by MisterZtr (SourceForge). LineageOS and Android are trademarks of their respective owners. Not affiliated with Samsung, Google or LineageOS.
+EvoX GSI by Doze-off. EvoX and Android are trademarks of their respective owners. Not affiliated with Samsung or Google.
