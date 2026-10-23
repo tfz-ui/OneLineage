@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
         cardFlavorVanilla.setOnClickListener(clickVanilla);
         cardFlavorGapps.setOnClickListener(clickGapps);
 
-        selectFlavor(Flavor.GAPPS);
+        selectFlavor(Flavor.VANILLA);
     }
 
     private void selectFlavor(Flavor flavor) {
@@ -135,7 +135,7 @@ public class MainActivity extends Activity {
                 tvDownloadDesc.setText("EvoX 11.8 GSI • Android 16 • Vanilla");
                 break;
             case GAPPS:
-                tvDownloadDesc.setText("EvoX 11.8 GSI • Android 16 • Vanilla");
+                tvDownloadDesc.setText("EvoX 11.8 GSI • Android 16 • Google Apps included");
                 break;
         }
     }
