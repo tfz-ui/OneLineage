@@ -76,7 +76,7 @@ if [ -d /system_ext/apex ]; then
     mount | grep -q "$ROOTFS/system_ext/apex " || $BB mount --bind /system_ext/apex "$ROOTFS/system_ext/apex"
 fi
 mount | grep -q "$ROOTFS/mnt " || $BB mount --rbind /mnt "$ROOTFS/mnt"
-if [ -f "$STAGE/services_patched.jar" ]; then
+# These overlays target a particular LineageOS release. Their framework and\n# PermissionController payloads must not be mounted over EvoX.\nif [ ! -f "$STAGE/evox_gsi" ]; then\nif [ -f "$STAGE/services_patched.jar" ]; then
     $BB umount -l "$ROOTFS/system/framework/services.jar" 2>/dev/null || true
     $BB mount --bind "$STAGE/services_patched.jar" "$ROOTFS/system/framework/services.jar"
     echo "Bound services_patched.jar -> $ROOTFS/system/framework/services.jar"
@@ -114,7 +114,7 @@ fi
 
 
 
-echo "=== 5. Setting up Isolated Data & Bridges ==="
+else\n    echo "Skipping LineageOS-specific framework patches for EvoX"\nfi\n\necho "=== 5. Setting up Isolated Data & Bridges ==="
 mkdir -p "$STAGE/data/adb" "$STAGE/data/apex" "$STAGE/data/dalvik-cache/arm64"
 
 # Give the guest the host's authorised ADB keys. The container has no
@@ -663,7 +663,7 @@ done
 #   -> "Permission controller keeps stopping"
 # and Gallery/Phone/Calendar can never be granted anything. Bind it now that
 # /apex/com.android.permission actually exists.
-if [ -f "$STAGE/PermissionController_patched.apk" ]; then
+if [ ! -f "$STAGE/evox_gsi" ] && [ -f "$STAGE/PermissionController_patched.apk" ]; then
     chmod 644 "$STAGE/PermissionController_patched.apk" 2>/dev/null || true
     for PERM_APK in $(find "$ROOTFS/apex/com.android.permission" -name "PermissionController.apk" 2>/dev/null); do
         $BB umount -l "$PERM_APK" 2>/dev/null || true
@@ -675,4 +675,4 @@ else
     echo "!!! (android.permission.RANGING not defined by platform)"
 fi
 
-echo "=== ALL MOUNTS PREPARED SUCCESSFULLY ==="
+fi\n\necho "=== ALL MOUNTS PREPARED SUCCESSFULLY ==="
